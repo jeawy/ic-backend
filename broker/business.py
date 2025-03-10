@@ -1,14 +1,8 @@
 import json
-import logging
+from common import logger, error
 import traceback
-from django.http import JsonResponse
 from .models import Broker
 from company.models import Company
-
-logger = logging.getLogger(__name__)
-
-def error(message):
-    return JsonResponse({'error': message}, status=400)
 
 def get_all_request():
     broker = list(Broker.objects.values())
@@ -31,8 +25,9 @@ def get_request(pk):
         }
     except Broker.DoesNotExist:
         return {'error': 'Broker not found'}
-    except Exception:
-        return {'error': traceback.format_exc()}
+    except Exception as e:
+        logger.error(traceback.format_exc())
+        return error(message=str(e))
 
 
 def post_request(request_body):

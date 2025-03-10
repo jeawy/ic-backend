@@ -1,13 +1,7 @@
 import json
 import traceback
-import logging
-from django.http import JsonResponse
+from common import logger, error
 from .models import Company
-
-logger = logging.getLogger(__name__)
-
-def error(message):
-    return JsonResponse({'error': message}, status=400)
 
 def get_all_request():
     companies = list(Company.objects.values())
