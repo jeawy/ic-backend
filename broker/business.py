@@ -1,4 +1,5 @@
 import json
+import traceback
 from django.http import JsonResponse
 from .models import Broker
 from company.models import Company
@@ -8,18 +9,24 @@ def get_all_request():
     return broker
 
 def get_request(pk):
-    broker = Broker.objects.get(pk=pk)
-    return {
-        'id': broker.id,
-        'first_name': broker.first_name,
-        'last_name': broker.last_name,
-        'email': broker.email,
-        'phone': broker.phone,
-        'address': broker.address,
-        'company': broker.company.id,
-        'license_no': broker.license_no,
-        'license_issued_date': str(broker.license_issued_date)
-    }
+    try:
+        broker = Broker.objects.get(pk=pk)
+        return {
+            'id': broker.id,
+            'first_name': broker.first_name,
+            'last_name': broker.last_name,
+            'email': broker.email,
+            'phone': broker.phone,
+            'address': broker.address,
+            'company': broker.company.id,
+            'license_no': broker.license_no,
+            'license_issued_date': str(broker.license_issued_date),
+            'status': broker.status
+        }
+    except Broker.DoesNotExist:
+        return {'error': 'Broker not found'}
+    except Exception:
+        return {'error': traceback.format_exc()}
 
 
 def post_request(request_body):
@@ -46,7 +53,8 @@ def post_request(request_body):
             address=data.get('address'),
             company=company,  # Assign the company instance
             license_no=data.get('license_no'),
-            license_issued_date=data.get('license_issued_date')
+            license_issued_date=data.get('license_issued_date'),
+            status = data.get('status')
         )
 
         return {
@@ -58,10 +66,11 @@ def post_request(request_body):
             'address': broker.address,
             'company': broker.company.id,
             'license_no': broker.license_no,
-            'license_issued_date': str(broker.license_issued_date)
+            'license_issued_date': str(broker.license_issued_date),
+            'status': broker.status
         }
-    except Exception as e:
-        return {'error': str(e)}
+    except Exception:
+        return {'error': traceback.format_exc()}
 
 def put_request(pk, request_body):
     try:
@@ -85,6 +94,7 @@ def put_request(pk, request_body):
         broker.company = company
         broker.license_no = data.get('license_no')
         broker.license_issued_date = data.get('license_issued_date')
+        broker.status = data.get('status')
         broker.save()
 
         return {
@@ -96,12 +106,13 @@ def put_request(pk, request_body):
             'address': broker.address,
             'company': broker.company.id,
             'license_no': broker.license_no,
-            'license_issued_date': str(broker.license_issued_date)
+            'license_issued_date': str(broker.license_issued_date),
+            'status': broker.status
         }
     except Broker.DoesNotExist:
         return {'error': 'Broker not found'}
-    except Exception as e:
-        return {'error': str(e)}
+    except Exception:
+        return {'error': traceback.format_exc()}
 
 def patch_request(pk, request_body):
     try:
@@ -123,6 +134,8 @@ def patch_request(pk, request_body):
             broker.license_no = data['license_no']
         if 'license_issued_date' in data:
             broker.license_issued_date = data['license_issued_date']
+        if 'status' in data:
+            broker.status = data['status']
         broker.save()
         return {
             'id': broker.id,
@@ -133,12 +146,13 @@ def patch_request(pk, request_body):
             'address': broker.address,
             'company': broker.company.id,
             'license_no': broker.license_no,
-            'license_issued_date': str(broker.license_issued_date)
+            'license_issued_date': str(broker.license_issued_date),
+            'status': broker.status
         }
     except Broker.DoesNotExist:
         return {'error': 'Broker not found'}
-    except Exception as e:
-        return {'error': str(e)}
+    except Exception:
+        return {'error': traceback.format_exc()}
 
 def delete_request(pk):
     try:
@@ -147,3 +161,5 @@ def delete_request(pk):
         return {'message': 'Broker deleted successfully'}
     except Broker.DoesNotExist:
         return {'error': 'Broker not found'}
+    except Exception:
+        return {'error': traceback.format_exc()}
