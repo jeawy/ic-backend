@@ -1,8 +1,13 @@
 import json
 import traceback
-
+import logging
 from django.http import JsonResponse
 from .models import Company
+
+logger = logging.getLogger(__name__)
+
+def error(message):
+    return JsonResponse({'error': message}, status=400)
 
 def get_all_request():
     companies = list(Company.objects.values())
@@ -21,8 +26,9 @@ def get_request(pk):
         }
     except Company.DoesNotExist:
         return {'error': 'Company not found'}
-    except Exception:
-        return {'error': traceback.format_exc()}
+    except Exception as e:
+        logger.error(traceback.format_exc())
+        return error(message=str(e))
 
 def post_request(request_body):
     try:
@@ -42,8 +48,9 @@ def post_request(request_body):
             'email': company.email,
             'status': company.status
         }
-    except Exception:
-        return {'error': traceback.format_exc()}
+    except Exception as e:
+        logger.error(traceback.format_exc())
+        return error(message=str(e))
 
 def put_request(pk, request_body):
     try:
@@ -65,8 +72,9 @@ def put_request(pk, request_body):
         }
     except Company.DoesNotExist:
         return {'error': 'Company not found'}
-    except Exception:
-        return {'error': traceback.format_exc()}
+    except Exception as e:
+        logger.error(traceback.format_exc())
+        return error(message=str(e))
 
 def patch_request(pk, request_body):
     try:
@@ -94,8 +102,9 @@ def patch_request(pk, request_body):
         }
     except Company.DoesNotExist:
         return {'error': 'Company not found'}
-    except Exception:
-        return {'error': traceback.format_exc()}
+    except Exception as e:
+        logger.error(traceback.format_exc())
+        return error(message=str(e))
 
 def delete_request(pk):
     try:
@@ -104,5 +113,6 @@ def delete_request(pk):
         return {'message': 'Deleted successfully'}
     except Company.DoesNotExist:
         return {'error': 'Company not found'}
-    except Exception:
-        return {'error': traceback.format_exc()}
+    except Exception as e:
+        logger.error(traceback.format_exc())
+        return error(message=str(e))

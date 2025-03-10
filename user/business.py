@@ -1,21 +1,34 @@
 import json
+import traceback
+import logging
 from django.http import JsonResponse
 from .models import User
+
+logger = logging.getLogger(__name__)
+
+def error(message):
+    return JsonResponse({'error': message}, status=400)
 
 def get_all_request():
     user = list(User.objects.values())
     return user
 
 def get_request(pk):
-    user = User.objects.get(pk=pk)
-    return {
-        'id': user.id,
-        'name': user.name,
-        'email': user.email,
-        'phone': user.phone,
-        'department': user.department,
-        'role': user.role,
-    }
+    try:
+        user = User.objects.get(pk=pk)
+        return {
+            'id': user.id,
+            'name': user.name,
+            'email': user.email,
+            'phone': user.phone,
+            'department': user.department,
+            'role': user.role,
+        }
+    except User.DoesNotExist:
+        return {'error': 'user not found'}
+    except Exception as e:
+        logger.error(traceback.format_exc())
+        return error(message=str(e))
 
 
 def post_request(request_body):
@@ -39,7 +52,8 @@ def post_request(request_body):
             'role': user.role,
         }
     except Exception as e:
-        return {'error': str(e)}
+        logger.error(traceback.format_exc())
+        return error(message=str(e))
 
 def put_request(pk, request_body):
     try:
@@ -64,7 +78,8 @@ def put_request(pk, request_body):
     except User.DoesNotExist:
         return {'error': 'user not found'}
     except Exception as e:
-        return {'error': str(e)}
+        logger.error(traceback.format_exc())
+        return error(message=str(e))
 
 def patch_request(pk, request_body):
     try:
@@ -92,7 +107,8 @@ def patch_request(pk, request_body):
     except User.DoesNotExist:
         return {'error': 'user not found'}
     except Exception as e:
-        return {'error': str(e)}
+        logger.error(traceback.format_exc())
+        return error(message=str(e))
 
 def delete_request(pk):
     try:
@@ -101,3 +117,6 @@ def delete_request(pk):
         return {'message': 'user deleted successfully'}
     except User.DoesNotExist:
         return {'error': 'user not found'}
+    except Exception as e:
+        logger.error(traceback.format_exc())
+        return error(message=str(e))

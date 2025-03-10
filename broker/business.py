@@ -1,8 +1,14 @@
 import json
+import logging
 import traceback
 from django.http import JsonResponse
 from .models import Broker
 from company.models import Company
+
+logger = logging.getLogger(__name__)
+
+def error(message):
+    return JsonResponse({'error': message}, status=400)
 
 def get_all_request():
     broker = list(Broker.objects.values())
@@ -69,8 +75,9 @@ def post_request(request_body):
             'license_issued_date': str(broker.license_issued_date),
             'status': broker.status
         }
-    except Exception:
-        return {'error': traceback.format_exc()}
+    except Exception as e:
+        logger.error(traceback.format_exc())
+        return error(message=str(e))
 
 def put_request(pk, request_body):
     try:
@@ -111,8 +118,9 @@ def put_request(pk, request_body):
         }
     except Broker.DoesNotExist:
         return {'error': 'Broker not found'}
-    except Exception:
-        return {'error': traceback.format_exc()}
+    except Exception as e:
+        logger.error(traceback.format_exc())
+        return error(message=str(e))
 
 def patch_request(pk, request_body):
     try:
@@ -151,8 +159,9 @@ def patch_request(pk, request_body):
         }
     except Broker.DoesNotExist:
         return {'error': 'Broker not found'}
-    except Exception:
-        return {'error': traceback.format_exc()}
+    except Exception as e:
+        logger.error(traceback.format_exc())
+        return error(message=str(e))
 
 def delete_request(pk):
     try:
@@ -161,5 +170,6 @@ def delete_request(pk):
         return {'message': 'Broker deleted successfully'}
     except Broker.DoesNotExist:
         return {'error': 'Broker not found'}
-    except Exception:
-        return {'error': traceback.format_exc()}
+    except Exception as e:
+        logger.error(traceback.format_exc())
+        return error(message=str(e))
