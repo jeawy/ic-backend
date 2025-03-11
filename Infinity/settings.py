@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -40,6 +41,7 @@ INSTALLED_APPS = [
     'company',
     'broker',
     'user',
+    'chat',
 ]
 
 MIDDLEWARE = [
@@ -72,7 +74,14 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'Infinity.wsgi.application'
+ASGI_APPLICATION = 'Infinity.asgi.application'
 
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND':
+            'channels.layers.InMemoryChannelLayer',
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases

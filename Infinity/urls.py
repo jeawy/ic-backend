@@ -24,4 +24,7 @@ urlpatterns = [
     path( 'broker/', include('broker.urls')),
 
     path('user/', include('user.urls')),
+    path('chat/', include('chat.urls'))
+,
+
 ]
